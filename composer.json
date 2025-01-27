@@ -1,0 +1,22 @@
+{
+    "name": "pego/pego",
+    "description": "pego",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Pego\\": "src/",
+            "Test\\": "test/"
+        }
+    },
+    "authors": [
+        {
+            "name": "II",
+            "email": "index@google.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {},
+    "scripts": {
+        "generate": "Pego\\Builder::make"
+    }
+}
