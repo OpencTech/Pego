@@ -34,7 +34,7 @@ class Files {
         foreach ($files as $file) {
             if ($file->isFile() && $file->getExtension() === 'php') {
                 $filePath = $file->getPathname();
-                [$class, $className, $classNamespace] = $this->getClassName($path, $namespace, $filePath);
+                [$class, $className, $classNamespace, $namespacePath] = $this->getClassName($path, $namespace, $filePath);
 
                 try {
                     $reflectionClass = new ReflectionClass($class);
@@ -42,12 +42,15 @@ class Files {
                     $isAbstract = $options->isAbstract ? $reflectionClass->isAbstract() : true;
                     $isExtends  = $options->extends ? $this->inExtends($reflectionClass, $options->extends) : true;
 
+                    if (!$isAbstract && $isExtends)
+                        echo "# $class не является абстрактным \n";
+
                     if ($isAbstract && $isExtends)
                         $abstractClasses[] = new ClassInstance(
                             $class,
                             $className,
                             $classNamespace,
-                            $path,
+                            $namespacePath, // неправильный путь!
                             $filePath,
                         );
                 } catch (\Throwable $th) {
@@ -73,11 +76,14 @@ class Files {
     private function getClassName(string $path, string $namespace, string $classPath): array
     {
         $classPath = substr($classPath, strlen($path) +1, -4);
-        $ar = explode(DIRECTORY_SEPARATOR, $classPath);
-        $className = end($ar);
-        $namespace = trim($namespace, '\\');
-        $class = implode('\\', [...explode('\\', $namespace), ...$ar]);
+        $arClassPath = explode(DIRECTORY_SEPARATOR, $classPath);
+        $className = end($arClassPath);
+        $arNamespace = [...explode('\\', trim($namespace, '\\')), ...array_slice($arClassPath, 0, -1)];
 
-        return [$class, $className, $namespace];
+        $namespacePath = implode(DIRECTORY_SEPARATOR, $arNamespace);
+        $class = implode('\\', [...$arNamespace, $className]);
+        $namespace = implode('\\', $arNamespace);
+
+        return [$class, $className, $namespace, $namespacePath];
     }
 }
