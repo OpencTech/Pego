@@ -2,7 +2,10 @@
 
 namespace Pego;
 
-abstract class PegoClass implements PegoInterface {
+abstract class PegoClass implements PegoInterface
+{
+
+    public string $name;
 
     function handle(string $method, array $props)
     {
@@ -14,7 +17,7 @@ abstract class PegoClass implements PegoInterface {
     {
         $result = [];
 
-        
+
 
         return $result;
     }

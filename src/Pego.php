@@ -9,7 +9,7 @@ namespace Pego;
 class Pego {
 
     public function __construct(
-        public string $method = 'getProps',
+        public string $method,
         public mixed $props = null
     ) {
         

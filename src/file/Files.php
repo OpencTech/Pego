@@ -12,24 +12,31 @@ class Files
 
     function getProjectClassList(string | array | null $extends = null, bool $isAbstract = false, array $postfix = []): array
     {
-        ['install_path' => $install_path] = InstalledVersions::getRootPackage();
-        $classLoader = require "{$install_path}/vendor/autoload.php";
-        $psr4 = $classLoader->getPrefixesPsr4();
+        try {
+            ['install_path' => $install_path] = InstalledVersions::getRootPackage();
+            $psr4 = $this->getPsr4($install_path);
 
-        $options = (object)['extends' => $extends, 'isAbstract' => $isAbstract, 'postfix' => $postfix];
+            $options = (object)['extends' => $extends, 'isAbstract' => $isAbstract, 'postfix' => $postfix];
 
-        $result = [];
-        foreach ($psr4 as $namespace => $path) {
-            $result = array_merge($result, $this->findInSpace($path[0], $namespace, $options));
+            $result = [];
+            foreach ($psr4 as $namespace => $path) {
+                $result = array_merge($result, $this->findInSpace($path, $namespace, $options));
+            }
+
+            return $result;
+        } catch (\Throwable $th) {
+            echo "### error\n\n";
+
+            echo $th->getMessage();
+
+            echo "\n\n";
         }
-
-        return $result;
     }
 
 
     private function findInSpace(string $path, string $namespace, object $options): array
     {
-        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path));
+        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator("./$path"));
 
         $abstractClasses = [];
 
@@ -94,8 +101,8 @@ class Files
     {
         $namespaceFolderMatch = $this->getNamespaceFolder($path, $namespace);
 
-        $classPath = substr($classPath, strlen($path) + 1, -4);
-        $arClassPath = explode(DIRECTORY_SEPARATOR, $classPath);
+        $classPath = substr($classPath, 0, -4);
+        $arClassPath = array_slice(explode(DIRECTORY_SEPARATOR, $classPath), str_starts_with($classPath, '.') ? 2 : 1);
         $className = end($arClassPath);
 
         $classFolder = array_slice($arClassPath, 0, -1);
@@ -122,5 +129,13 @@ class Files
         $result = array_combine($ns, $_ph);
 
         return $result;
+    }
+
+
+
+    private function getPsr4(string $root)
+    {
+        $composer = json_decode(file_get_contents("$root/composer.json"), true);
+        return isset($composer['autoload']['psr-4']) ? $composer['autoload']['psr-4'] : [];
     }
 }
