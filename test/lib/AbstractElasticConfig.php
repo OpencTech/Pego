@@ -7,7 +7,19 @@ use Pego\PegoClass;
 
 abstract class AbstractElasticConfig extends PegoClass {
 
-    
+    /** 
+     * Подсветка
+    */
+    #[Pego]
+    public function __highlight(array $highlightTags = ['<mark>', '</mark>'], null &...$props)
+    {
+        //** hl */
+
+        return $this;
+    }
+
+
+
     /** 
      * Добавить данные в index
     */
@@ -31,8 +43,6 @@ abstract class AbstractElasticConfig extends PegoClass {
     {
         
     }
-
-
 
 
 

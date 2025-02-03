@@ -75,15 +75,35 @@ class Files {
 
     private function getClassName(string $path, string $namespace, string $classPath): array
     {
+        $namespaceFolderMatch = $this->getNamespaceFolder($path, $namespace);
+
         $classPath = substr($classPath, strlen($path) +1, -4);
         $arClassPath = explode(DIRECTORY_SEPARATOR, $classPath);
         $className = end($arClassPath);
-        $arNamespace = [...explode('\\', trim($namespace, '\\')), ...array_slice($arClassPath, 0, -1)];
 
-        $namespacePath = implode(DIRECTORY_SEPARATOR, $arNamespace);
-        $class = implode('\\', [...$arNamespace, $className]);
-        $namespace = implode('\\', $arNamespace);
+        $classFolder = array_slice($arClassPath, 0, -1);
 
-        return [$class, $className, $namespace, $namespacePath];
+        $arfile = [...array_values($namespaceFolderMatch), ...$classFolder];
+        $filepath = implode(DIRECTORY_SEPARATOR, $arfile);
+
+        $arnamespace = [...array_keys($namespaceFolderMatch), ...$classFolder];
+
+
+        $class = implode('\\', [...$arnamespace, $className]);
+        $namespace = implode('\\', $arnamespace);
+
+        return [$class, $className, $namespace, $filepath];
+    }
+
+
+    private function getNamespaceFolder(string $path, string $namespace)
+    {
+        $ns = explode('\\', trim($namespace, '\\'));
+        $ph = explode(DIRECTORY_SEPARATOR, trim($path, DIRECTORY_SEPARATOR));
+
+        $_ph = array_slice($ph, -count($ns));
+        $result = array_combine($ns, $_ph);
+
+        return $result;
     }
 }

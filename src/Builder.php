@@ -4,10 +4,10 @@ namespace Pego;
 
 use Pego\file\ClassInstance;
 use Pego\file\Files;
+use Pego\MethodArgs\Args;
 use Pego\Schema\Schema;
 use Pego\Schema\SchemaItem;
 use ReflectionClass;
-use Test\project\ElasticConfig;
 
 class Builder {
 
@@ -37,8 +37,8 @@ class Builder {
             foreach ($schema->items as $item) {
                 $methodList = [];
 
-                foreach ($methods as $method => ['method' => $run, 'props' => $props, 'doc' => $docs]) {
-                    [$varibles, $array] = $this->getVaribles($target->{$run}($item, $props));
+                foreach ($methods as $method => ['method' => $run, 'props' => $props, 'doc' => $docs, 'args' => $args]) {
+                    [$varibles, $array] = $this->getVaribles($target->{$run}($item, $props), $args);
                     $code = <<<PHP
                         {$docs}
                         function {$method}({$varibles}) {
@@ -94,13 +94,16 @@ class Builder {
 
         namespace {$namespace};
         
+        class {$class} extends {$extends} {
+            // code
+        }
         PHP);
     }
 
-    private function getVaribles(array $props)
+    private function getVaribles(array $props, ?array $args = null)
     {
-        $varibles = [];
-        $array = [];
+        $varibles = $args ? array_map(fn($arg) => "{$arg[0]} \${$arg[1]} = {$arg[2]}", $args) : [];
+        $array = $args ? array_map(fn($arg) => "'{$arg[1]}' => \${$arg[1]}", $args) : [];
 
         foreach ($props as [$type, $var]) {
             $name = "\${$var}";
@@ -121,22 +124,30 @@ class Builder {
         $result = [];
 
         foreach ($reflectionClass->getMethods() as $method) {
-            if (!str_starts_with($method->name, '__')) {
-
+            if (!str_starts_with($method->name, '__')) 
                 continue;
-            }
+            
 
             $attributes = $method->getAttributes(Pego::class);
             if (!empty($attributes)) {
                 $instance = $attributes[0]->newInstance();
                 $name = substr($method->name, 2);
-                $result[$name] = ['method' => $instance->method, 'props' => $instance->props, 'doc' => $method->getDocComment()];
+                $argss = new Args();
+
+                $result[$name] = [
+                    'method' => $instance->method, 
+                    'props' => $instance->props, 
+                    'doc' => $method->getDocComment(), 
+                    'args' => $argss->get($method),
+                ];
             }
             
         }
 
         return $result;
     }
+
+
 
 
 
