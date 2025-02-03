@@ -20,7 +20,7 @@ class Builder {
     function build() {
         $files = new Files;
 
-        $pegoClasses = $files->getProjectClassList(extends: PegoClass::class,  isAbstract: true);
+        $pegoClasses = $files->getProjectClassList(extends: PegoClass::class,  isAbstract: true, postfix: ['Config']);
         $containers =  $files->getProjectClassList(extends: $pegoClasses, isAbstract: true);
 
         /** @var ClassInstance $config */

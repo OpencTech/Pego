@@ -24,7 +24,7 @@ class Args
 
     private function getDefaultValue(ReflectionParameter $arg)
     {
-        $defVal = var_export($arg->getDefaultValue(), true);
+        $defVal = $this->varexport($arg->getDefaultValue());
         $defVal = str_replace("\n", '', $defVal);
 
         return $defVal;
@@ -37,5 +37,19 @@ class Args
         $type = ($atype->allowsNull() ? '?' : '') . "$atype";
 
         return $type;
+    }
+
+
+    private function varexport($expression)
+    {
+        $export = var_export($expression, TRUE);
+        $patterns = [
+            "/array \(/" => '[',
+            "/^([ ]*)\)(,?)$/m" => '$1]$2',
+            "/=>[ ]?\n[ ]+\[/" => '=> [',
+            "/([ ]*)(\'[^\']+\') => ([\[\'])/" => '$1$2 => $3',
+        ];
+        $export = preg_replace(array_keys($patterns), array_values($patterns), $export);
+        return $export;
     }
 }

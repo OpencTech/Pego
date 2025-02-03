@@ -6,7 +6,7 @@ use Pego\Schema\Schema;
 use Pego\Schema\SchemaItem;
 use Test\lib\AbstractElasticConfig;
 
-abstract class ElasticConfig extends AbstractElasticConfig {
+abstract class ElasticConfigController extends AbstractElasticConfig {
 
     function createScheme(): Schema
     {

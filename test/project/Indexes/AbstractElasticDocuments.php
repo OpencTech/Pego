@@ -2,15 +2,15 @@
 
 namespace Test\project\Indexes;
 
-use Test\project\ElasticConfig;
+use Test\project\ElasticConfigController;
 
-abstract class AbstractElasticDocuments extends ElasticConfig 
+abstract class AbstractElasticDocuments extends ElasticConfigController 
 {
 
     /** 
      * Подсветка
     */
-    function highlight(array $highlightTags = array (  0 => '<mark>',  1 => '</mark>',), string | false $title = false, string | false $url = false, string | false $key = false, string | false $text = false, string | false $path = false) {
+    function highlight(array $highlightTags = [  0 => '<mark>',  1 => '</mark>',], string | false $title = false, string | false $url = false, string | false $key = false, string | false $text = false, string | false $path = false) {
         return $this->handle('__highlight', [
 			'highlightTags' => $highlightTags, 
 			'title' => $title, 

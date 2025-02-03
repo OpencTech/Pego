@@ -2,15 +2,15 @@
 
 namespace Test\project\Indexes;
 
-use Test\project\ElasticConfig;
+use Test\project\ElasticConfigController;
 
-abstract class AbstractElasticFilter extends ElasticConfig 
+abstract class AbstractElasticFilter extends ElasticConfigController 
 {
 
     /** 
      * Подсветка
     */
-    function highlight(array $highlightTags = array (  0 => '<mark>',  1 => '</mark>',), string | false $parent = false, string | false $type = false, string | false $section = false, string | false $coll = false, string | false $value = false, string | false $valueId = false) {
+    function highlight(array $highlightTags = [  0 => '<mark>',  1 => '</mark>',], string | false $parent = false, string | false $type = false, string | false $section = false, string | false $coll = false, string | false $value = false, string | false $valueId = false) {
         return $this->handle('__highlight', [
 			'highlightTags' => $highlightTags, 
 			'parent' => $parent, 

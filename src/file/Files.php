@@ -7,15 +7,16 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionClass;
 
-class Files {
+class Files
+{
 
-    function getProjectClassList(string | array | null $extends = null, bool $isAbstract = false): array
+    function getProjectClassList(string | array | null $extends = null, bool $isAbstract = false, array $postfix = []): array
     {
         ['install_path' => $install_path] = InstalledVersions::getRootPackage();
         $classLoader = require "{$install_path}/vendor/autoload.php";
         $psr4 = $classLoader->getPrefixesPsr4();
 
-        $options = (object)['extends' => $extends, 'isAbstract' => $isAbstract];
+        $options = (object)['extends' => $extends, 'isAbstract' => $isAbstract, 'postfix' => $postfix];
 
         $result = [];
         foreach ($psr4 as $namespace => $path) {
@@ -26,7 +27,8 @@ class Files {
     }
 
 
-    private function findInSpace(string $path, string $namespace, object $options): array {
+    private function findInSpace(string $path, string $namespace, object $options): array
+    {
         $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path));
 
         $abstractClasses = [];
@@ -35,6 +37,21 @@ class Files {
             if ($file->isFile() && $file->getExtension() === 'php') {
                 $filePath = $file->getPathname();
                 [$class, $className, $classNamespace, $namespacePath] = $this->getClassName($path, $namespace, $filePath);
+
+                if (!empty($options->postfix)) {
+
+                    $pass = false;
+                    foreach ($options->postfix as $postfix) {
+                        if (str_ends_with($className, $postfix)) {
+                            $pass = true;
+                            break;
+                        }
+                    }
+
+                    if (!$pass)
+                        continue;
+                }
+
 
                 try {
                     $reflectionClass = new ReflectionClass($class);
@@ -56,15 +73,15 @@ class Files {
                 } catch (\Throwable $th) {
                     echo "### Не удалось создать - new ReflectionClass($class)\n";
                 }
-
             }
         }
-    
+
         return $abstractClasses;
     }
 
 
-    private function inExtends(ReflectionClass $reflectionClass, array | string $extends): bool {
+    private function inExtends(ReflectionClass $reflectionClass, array | string $extends): bool
+    {
         foreach ((array)$extends as $class) {
             if ($reflectionClass->isSubclassOf((string)$class))
                 return true;
@@ -77,7 +94,7 @@ class Files {
     {
         $namespaceFolderMatch = $this->getNamespaceFolder($path, $namespace);
 
-        $classPath = substr($classPath, strlen($path) +1, -4);
+        $classPath = substr($classPath, strlen($path) + 1, -4);
         $arClassPath = explode(DIRECTORY_SEPARATOR, $classPath);
         $className = end($arClassPath);
 
