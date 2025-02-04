@@ -1,6 +1,6 @@
 <?php
 
-namespace Pego\Schema;
+namespace Pego\Schemas;
 
 class SchemaItem {
 

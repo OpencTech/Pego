@@ -1,6 +1,6 @@
 <?php
 
-namespace Pego\file;
+namespace Pego\File;
 
 use Composer\InstalledVersions;
 use RecursiveDirectoryIterator;

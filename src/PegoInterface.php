@@ -2,8 +2,8 @@
 
 namespace Pego;
 
-use Pego\Schema\Schema;
-use Pego\Schema\SchemaItem;
+use Pego\Schemas\Schema;
+use Pego\Schemas\SchemaItem;
 
 interface PegoInterface {
 

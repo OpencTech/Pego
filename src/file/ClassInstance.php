@@ -1,9 +1,10 @@
 <?php
 
-namespace Pego\file;
+namespace Pego\File;
 
 class ClassInstance {
 
+    
     function __construct(
         public string $class, 
         public string $className, 
